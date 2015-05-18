@@ -31,4 +31,11 @@
         android:layout_height="wrap_content"
         android:text="Send SMS"
         />    
+    <TextView
+        android:id="@+id/outputTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#CC0033"
+        android:textSize="16sp"
+        android:textStyle="bold" />     
 </LinearLayout>

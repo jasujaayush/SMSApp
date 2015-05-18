@@ -1917,7 +1917,7 @@ containing a value of this type.
         public static final int action_mode_bar=0x7f09003d;
         public static final int action_mode_bar_stub=0x7f09003c;
         public static final int action_mode_close_button=0x7f090025;
-        public static final int action_settings=0x7f090052;
+        public static final int action_settings=0x7f090053;
         public static final int activity_chooser_view_content=0x7f090026;
         public static final int alertTitle=0x7f090030;
         public static final int always=0x7f090019;
@@ -1950,6 +1950,7 @@ containing a value of this type.
         public static final int never=0x7f09001c;
         public static final int none=0x7f09000f;
         public static final int normal=0x7f09000b;
+        public static final int outputTxt=0x7f090052;
         public static final int parentPanel=0x7f09002d;
         public static final int progress_circular=0x7f090007;
         public static final int progress_horizontal=0x7f090008;
