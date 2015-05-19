@@ -1,7 +1,6 @@
 package com.test.smsmessaging;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -11,9 +10,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -25,13 +21,6 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
-
-import org.fusesource.mqtt.client.Callback;
-import org.fusesource.mqtt.client.FutureConnection;
-import org.fusesource.mqtt.client.MQTT;
-import org.fusesource.mqtt.client.Message;
-import org.fusesource.mqtt.client.QoS;
-import org.fusesource.mqtt.client.Topic;
  
 @SuppressLint("NewApi")
 public class SmsReceiver extends BroadcastReceiver
@@ -73,7 +62,8 @@ public class SmsReceiver extends BroadcastReceiver
 	                {
 	                	tempURL = URL+URLEncoder.encode(jsonstr, "UTF-8");
 	                	//new GetXMLTask().execute(new String[] { tempURL });
-	                	Push push = new Push();
+	                	
+	                	Push push = Push.getInstance();
 	                	push.sendmessage(context,jsonstr);
 	                	//Toast.makeText(context, tempURL, Toast.LENGTH_LONG).show();
 	                }

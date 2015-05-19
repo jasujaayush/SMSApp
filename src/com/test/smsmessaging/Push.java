@@ -35,37 +35,36 @@ public class Push {
 	String sDestination = "jugaado";
 	String sMessage = "test";
 	
+	private static Push instance; 
+	
 	MQTT mqtt = null;
 	FutureConnection connection = null;
+	public Push()
+	{
+		connect();
+	}
+	
+	public static Push getInstance(){
+		if(instance==null)
+			{
+				instance = new Push();
+				return instance;
+			}
+		else{
+			return instance;
+		}
+	}
+	
 	
     public void sendmessage(Context context, String msg)
     {
     	System.out.println("Inside sendmessage");
-    	mqtt = new MQTT();
-		mqtt.setClientId("jugaado-android-mqtt");
-		
-		try
+    	
+    	
+		while (!connection.isConnected())
 		{
-			mqtt.setHost(sAddress);
+			connect();
 		}
-		catch(URISyntaxException urise)
-		{
-			System.out.println("Error in SetHost");
-		}
-		
-		mqtt.setUserName(sUserName);
-		mqtt.setPassword(sPassword);
-		
-		connection = mqtt.futureConnection();
-		connection.connect();
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (connection.isConnected())
-		{
 			System.out.println("Connection is Established");
 			Topic[] topics = {new Topic(sDestination, QoS.AT_LEAST_ONCE)};
 			connection.subscribe(topics);
@@ -96,18 +95,81 @@ public class Push {
 			});
 			*/
 			connection.unsubscribe(new String[]{sDestination});
-			connection.disconnect().then(new Callback<Void>(){
-				public void onSuccess(Void value) {
-					System.out.println("Disconnected");
-				}
-				public void onFailure(Throwable e) {
-					System.out.println("Problem disconnecting");
-				}
-			});
-		}
-		else
+//			connection.disconnect().then(new Callback<Void>(){
+//				public void onSuccess(Void value) {
+//					System.out.println("Disconnected");
+//				}
+//				public void onFailure(Throwable e) {
+//					System.out.println("Problem disconnecting");
+//				}
+//			});
+		
+//		else
+//		{
+//			System.out.println("No Connection is Established, trying again");
+//			connect();
+//		}
+    }
+    
+    private void connect()
+    {
+    	mqtt = new MQTT();
+		mqtt.setClientId("jugaado-android-mqtt");
+		
+		try
 		{
-			System.out.println("No Connection is Established");
+			mqtt.setHost(sAddress);
+		}
+		catch(URISyntaxException urise)
+		{
+			System.out.println("Error in SetHost");
+		}
+		
+		mqtt.setUserName(sUserName);
+		mqtt.setPassword(sPassword);
+		
+		connection = mqtt.futureConnection();
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		connection.connect();
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    private void disconnect()
+    {
+    	try
+		{
+			if(connection != null && connection.isConnected())
+			{
+				connection.disconnect().then(new Callback<Void>(){
+					public void onSuccess(Void value) {
+						
+						System.out.println("Disconnected");
+					}
+					public void onFailure(Throwable e) {
+						System.out.println("Problem disconnecting");
+						
+					}
+				});
+			}
+			else
+			{
+				System.out.println("Not Connected");
+			}
+		}
+		catch(Exception e)
+		{
+			Log.e("error", "Exception " + e);
 		}
     }
     
