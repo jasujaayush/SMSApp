@@ -30,7 +30,8 @@ public class SMS extends Activity implements OnClickListener
     public void onCreate(Bundle savedInstanceState) 
     {	
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);        
+        setContentView(R.layout.activity_main);
+        registerReceiver(MessageSender, new IntentFilter("SEND MESSAGE"));
         findViewsById();
         
         btnSendSMS.setOnClickListener(this); 
@@ -56,7 +57,21 @@ public class SMS extends Activity implements OnClickListener
         outputText = (TextView) findViewById(R.id.outputTxt);
     }
 	
-	
+	BroadcastReceiver MessageSender = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	String number = intent.getStringExtra("number");
+	    	System.out.println("Number received : " + number);
+	        sendSMS(number,"Reply from Jugaado 1");
+	    }
+	};
+
+	@Override
+	protected void onDestroy() {
+	    super.onDestroy();
+	    unregisterReceiver(MessageSender);
+	}
+
 	
   //---sends an SMS message to another device---
     @TargetApi(Build.VERSION_CODES.DONUT)

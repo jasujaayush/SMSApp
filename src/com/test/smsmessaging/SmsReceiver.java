@@ -2,8 +2,6 @@ package com.test.smsmessaging;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -34,7 +32,7 @@ public class SmsReceiver extends BroadcastReceiver
 	@Override
     public void onReceive(Context context, Intent intent) 
     {	
-    		appContext = context;
+    	Toast.makeText(context, "Message Received", Toast.LENGTH_LONG).show();
 	        //---get the SMS message passed in---
 	        Bundle bundle = intent.getExtras();        
 	        SmsMessage[] msgs = null;
@@ -60,14 +58,16 @@ public class SmsReceiver extends BroadcastReceiver
 	              
 	                try
 	                {
-	                	tempURL = URL+URLEncoder.encode(jsonstr, "UTF-8");
+	                	//tempURL = URL+URLEncoder.encode(jsonstr, "UTF-8");
 	                	//new GetXMLTask().execute(new String[] { tempURL });
+	                	System.out.println("Before calling Push.getInstance()");
 	                	
 	                	Push push = Push.getInstance();
+	                	//push.blockingsendmessage(context,jsonstr);
 	                	push.sendmessage(context,jsonstr);
 	                	//Toast.makeText(context, tempURL, Toast.LENGTH_LONG).show();
 	                }
-	                catch (UnsupportedEncodingException e) 
+	                catch (Exception e) 
 	                {
 	                    // TODO Auto-generated catch block
 	                    e.printStackTrace();
@@ -77,6 +77,7 @@ public class SmsReceiver extends BroadcastReceiver
 	            //---display the new SMS message---
 	            System.out.println("Inside OnReceive");
 	            Log.d("jugaado","Inside OnReceive");
+	            
 	            Toast.makeText(context, jsonstr, Toast.LENGTH_LONG).show();
 	        }
      }
