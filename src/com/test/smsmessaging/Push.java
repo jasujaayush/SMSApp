@@ -3,10 +3,11 @@ package com.test.smsmessaging;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-import com.test.smsmessaging.MQTTSingleton;
+import com.test.smsmessaging.MQTTImmutable;
 
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
+import org.fusesource.mqtt.client.Message;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
 
@@ -53,17 +54,27 @@ public class Push {
     {
     	System.out.println("Inside sendmessage");
     	if(!connection.isConnected()){
-    		System.out.println("Push.sendmessage conneciont is not connected");
+    		try {
+				connection.kill();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		System.out.println("Push.sendmessage connection is not connected");
     		connect();
     	}
     	System.out.println("Trying to send a message");
-    	try {
+    	/*try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+    	Date start = new Date();
     	send(context,msg);
+    	Date end = new Date();
+    	Log.d(TAG, "sendmessage : Connection time:("+end.getTime()+"-"+ start.getTime()+")");
+    	
     	
 //		while (!connection.isConnected())
 //		{
@@ -136,7 +147,7 @@ public class Push {
     private void connect()
 	{
 		//mqtt = new MQTT();
-		mqtt = MQTTSingleton.getInstance();
+		mqtt = MQTTImmutable.getInstance();
 		mqtt.setClientId("android-mqtt-example");
 
 		try
@@ -164,19 +175,24 @@ public class Push {
 		//connection = mqtt.futureConnection();
 		connection = mqtt.blockingConnection();
 		try {
+			Date time = new Date();
 			connection.connect();
+			Date time2 = new Date();
+			//System.out.println("Connection time:"+(time2.getTime()+"-"+ time.getTime()));
+			Log.d(TAG, "Connect : Connection time:("+time2.getTime()+"-"+ time.getTime()+")");
 		} catch (Exception e2) {
 			// TODO Auto-generated catch block
+			Log.d(TAG, "Blocking Connection not working");
 			e2.printStackTrace();
 		}
 		
 		
-		try {
+		/*try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
+		}*/
 		
 /*		connection.connect().then(new Callback<Void>(){
 			public void onSuccess(Void value) {
@@ -228,6 +244,12 @@ public class Push {
 			// automatically connect if no longer connected
 			if(!connection.isConnected() )
 			{
+				try {
+					connection.kill();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				System.out.println("connection.isConnected="+connection.isConnected());
 				System.out.println("Calling connect() from send function");
 				System.out.println(connection.toString());
@@ -265,13 +287,10 @@ public class Push {
 			
 			try {
 				connection.publish(sDestination, msg.getBytes(), QoS.AT_MOST_ONCE, false);
-				String forNumber =  msg.toString();
-				String number = forNumber.substring(forNumber.indexOf("{") + 1, forNumber.indexOf(":"));		
+				Date start = new Date();
 				System.out.println("Published Message : "+msg.toString());
-				Intent i = new Intent("SEND MESSAGE");
-				i.putExtra("number",number);
-				Toast.makeText(context, "Sending Message", Toast.LENGTH_LONG).show();
-				context.sendBroadcast(i);
+				Date end = new Date();
+				Log.d(TAG, "send : Connection time:("+start.getTime()+"-"+ end.getTime()+")");
 				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -326,4 +345,60 @@ public class Push {
 			System.out.println("No connection has been made, please create the connection");
 		}
 	}  
+
+    public void listenOutgoing(Context context)
+    {
+    	Message msg = null;
+	    
+    	if(connection != null)
+			{
+				// automatically connect if no longer connected
+				if(!connection.isConnected() )
+				{
+					try {
+						connection.kill();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					System.out.println("connection.isConnected="+connection.isConnected());
+					System.out.println("Calling connect() from listenoutgoing function");
+					System.out.println(connection.toString());
+					connect();
+				}
+				
+				Topic[] topics = {new Topic(sOutgoing, QoS.AT_LEAST_ONCE)};
+				try {
+					connection.subscribe(topics);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				while(true)
+				{	
+					try {
+						msg = connection.receive();
+						byte[] payload = msg.getPayload();
+						String messagePayLoad = new String(payload);
+						String receivedMessageTopic = msg.getTopic();
+						if(receivedMessageTopic.equals("outgoing_jugaado"))
+						{
+							String number = messagePayLoad.substring(messagePayLoad.indexOf("{") + 1, messagePayLoad.indexOf(":"));
+							String reply = messagePayLoad.substring(messagePayLoad.indexOf(":") + 1, messagePayLoad.indexOf("}"));
+							System.out.println("Inside thread, number = "+number);
+							Intent i = new Intent("SEND MESSAGE");
+							i.putExtra("number",number);
+							i.putExtra("reply",reply);
+							//Toast.makeText(context, "Sending Message", Toast.LENGTH_LONG).show();
+							context.sendBroadcast(i);
+						}
+						System.out.println("listenOutgoing ="+receivedMessageTopic+" : "+messagePayLoad);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+		}
+    }
 }

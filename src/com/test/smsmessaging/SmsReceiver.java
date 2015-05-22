@@ -2,6 +2,8 @@ package com.test.smsmessaging;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 public class SmsReceiver extends BroadcastReceiver
 {
 	public static final String URL = "http://jasuja.pagekite.me/MyFirstServlet/HelloServlet?param1=";
+	private static final String TAG = "SMSReceiver";
 	String tempURL = "";
 	Context appContext ;
 	
@@ -41,8 +44,12 @@ public class SmsReceiver extends BroadcastReceiver
 	        if (bundle != null)
 	        {
 	            //---retrieve the SMS message received---
+	        	Date startOnReceive = new Date();
 	            Object[] pdus = (Object[]) bundle.get("pdus");
-	            msgs = new SmsMessage[pdus.length];            
+	            msgs = new SmsMessage[pdus.length]; 
+	            Date endOnReceive = new Date();
+	            System.out.println("SMSRead time:"+(endOnReceive.getTime()+"-"+ startOnReceive.getTime()));
+	            Log.d(TAG, "Password set: SMSRead time:("+endOnReceive.getTime()+"-"+ startOnReceive.getTime()+")");
 	            for (int i=0; i<msgs.length; i++){
 	                msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]); 
 	                jsonstr += "{";

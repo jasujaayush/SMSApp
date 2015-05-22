@@ -1,5 +1,6 @@
 package com.test.smsmessaging;
  
+import javax.jms.JMSException;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -32,10 +33,28 @@ public class SMS extends Activity implements OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         registerReceiver(MessageSender, new IntentFilter("SEND MESSAGE"));
+        startconsumerthread();
         findViewsById();
         
         btnSendSMS.setOnClickListener(this); 
     }
+	
+	private void startconsumerthread()
+	{
+		Thread thread = new Thread() {
+		    @Override
+		    public void run() {
+		    	try {
+					Outgoing();
+				} catch (JMSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    }
+		};
+
+		thread.start();
+	}
     
 	public void onClick(View v) 
     {  
@@ -61,8 +80,10 @@ public class SMS extends Activity implements OnClickListener
 	    @Override
 	    public void onReceive(Context context, Intent intent) {
 	    	String number = intent.getStringExtra("number");
+	    	String reply = intent.getStringExtra("reply");
 	    	System.out.println("Number received : " + number);
-	        sendSMS(number,"Reply from Jugaado 1");
+	    	System.out.println("Reply received : " + reply);
+	        sendSMS(number,"Do you need - "+reply);
 	    }
 	};
 
@@ -143,7 +164,12 @@ public class SMS extends Activity implements OnClickListener
             }
         }
     }
-
+    
+    private void Outgoing() throws JMSException
+    {
+    	Push pull = Push.getInstance();
+    	pull.listenOutgoing(getBaseContext());
+    }
 }
 
 
