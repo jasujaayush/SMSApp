@@ -366,6 +366,7 @@ public class Push {
 					System.out.println(connection.toString());
 					connect();
 				}
+				System.out.println("In listenOutgoing connection.isConnected="+connection.isConnected());
 				
 				Topic[] topics = {new Topic(sOutgoing, QoS.AT_LEAST_ONCE)};
 				try {
@@ -377,6 +378,13 @@ public class Push {
 				
 				while(true)
 				{	
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.out.println(" listenOutgoing, Inside while loop");
 					try {
 						msg = connection.receive();
 						byte[] payload = msg.getPayload();

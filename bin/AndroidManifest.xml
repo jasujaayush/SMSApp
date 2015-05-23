@@ -23,5 +23,8 @@
             </intent-filter> 
         </receiver>
         
+        <service android:name=".OutgoingQueueListener"> 
+        </service>
+        
     </application>
 </manifest>
