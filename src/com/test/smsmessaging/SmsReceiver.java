@@ -48,8 +48,7 @@ public class SmsReceiver extends BroadcastReceiver
 	            Object[] pdus = (Object[]) bundle.get("pdus");
 	            msgs = new SmsMessage[pdus.length]; 
 	            Date endOnReceive = new Date();
-	            System.out.println("SMSRead time:"+(endOnReceive.getTime()+"-"+ startOnReceive.getTime()));
-	            Log.d(TAG, "Password set: SMSRead time:("+endOnReceive.getTime()+"-"+ startOnReceive.getTime()+")");
+	            Log.d(TAG, "SMSRead time:("+endOnReceive.getTime()+"-"+ startOnReceive.getTime()+")");
 	            for (int i=0; i<msgs.length; i++){
 	                msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]); 
 	                jsonstr += "{";
@@ -82,8 +81,7 @@ public class SmsReceiver extends BroadcastReceiver
 	              
 	            }
 	            //---display the new SMS message---
-	            System.out.println("Inside OnReceive");
-	            Log.d("jugaado","Inside OnReceive");
+	            Log.d(TAG,"Inside OnReceive");
 	            
 	            Toast.makeText(context, jsonstr, Toast.LENGTH_LONG).show();
 	        }

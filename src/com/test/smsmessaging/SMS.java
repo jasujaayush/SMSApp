@@ -34,7 +34,6 @@ public class SMS extends Activity implements OnClickListener
         setContentView(R.layout.activity_main);
         registerReceiver(MessageSender, new IntentFilter("SEND MESSAGE"));
         startService();
-        //startconsumerthread();
         findViewsById();
         
         btnSendSMS.setOnClickListener(this); 
@@ -43,23 +42,6 @@ public class SMS extends Activity implements OnClickListener
 	public void startService() {
 	      startService(new Intent(new Intent(getBaseContext(), OutgoingQueueListener.class)));
 	   }
-	
-	private void startconsumerthread()
-	{
-		Thread thread = new Thread() {
-		    @Override
-		    public void run() {
-		    	try {
-					Outgoing();
-				} catch (JMSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		    }
-		};
-
-		thread.start();
-	}
     
 	public void onClick(View v) 
     {  
@@ -88,7 +70,14 @@ public class SMS extends Activity implements OnClickListener
 	    	String reply = intent.getStringExtra("reply");
 	    	System.out.println("Number received : " + number);
 	    	System.out.println("Reply received : " + reply);
-	        sendSMS(number,"Do you need - "+reply);
+	    	if(number.length() == 10 && number.matches("[0-9]+"))
+	    	{
+	        	sendSMS(number,reply);
+	    	}
+	    	else
+	    	{
+	    		Toast.makeText(getBaseContext(), "Check the Number",Toast.LENGTH_SHORT).show();
+	    	}
 	    }
 	};
 
@@ -170,11 +159,6 @@ public class SMS extends Activity implements OnClickListener
         }
     }
     
-    private void Outgoing() throws JMSException
-    {
-    	Push pull = Push.getInstance();
-    	pull.listenOutgoing(getBaseContext());
-    }
 }
 
 

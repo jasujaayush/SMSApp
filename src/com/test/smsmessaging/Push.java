@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 public class Push {
 	
-	private final String TAG = "MQTTClient";
+	private final String TAG = "Push";
 	String sAddress = "tcp://54.149.71.100:1883";
 	String sUserName = "system";
 	String sPassword = "manager";
@@ -34,7 +34,6 @@ public class Push {
 	BlockingConnection connection = null;
 	public Push()
 	{
-		System.out.println("Initializing Push()");
 		connect();
 	}
 	
@@ -64,84 +63,9 @@ public class Push {
     		connect();
     	}
     	System.out.println("Trying to send a message");
-    	/*try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-    	Date start = new Date();
     	send(context,msg);
     	Date end = new Date();
-    	Log.d(TAG, "sendmessage : Connection time:("+end.getTime()+"-"+ start.getTime()+")");
-    	
-    	
-//		while (!connection.isConnected())
-//		{
-//			connect();
-//		}
-//			System.out.println("Connection is Established");
-//			Topic[] topics = {new Topic(sDestination, QoS.AT_LEAST_ONCE)};
-//			connection.subscribe(topics);
-//			try {
-//				Thread.sleep(5000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			connection.publish(sDestination, msg.getBytes(), QoS.AT_MOST_ONCE, false);
-//			System.out.println("Check Topic in ActiveMQ");
-			
-//			Topic[] consumerTopics = {new Topic(sOutgoing, QoS.AT_LEAST_ONCE)};
-//			connection.subscribe(consumerTopics);
-//			try {
-//				Thread.sleep(5000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			Future<Message> message = connection.receive();
-//			Message msg = (Message)message;
-//			byte[] bytes = new byte[(int) bytesmsg.getBodyLength()];
-//        	bytesmsg.readBytes(bytes);
-//        	String string = new String(bytes, "UTF-8");
-//			System.out.println(string); 
-        	
-			//connection.publish(sDestination, msg.getBytes(), QoS.AT_MOST_ONCE, false);
-		//	System.out.println("Outgoing Message : " + message.toString());
-			
-			/*
-			connection.receive().then(new Callback<Message>() {
-				public void onSuccess(Message message) {
-					String receivedMesageTopic = message.getTopic();
-					byte[] payload = message.getPayload();
-					String messagePayLoad = new String(payload);
-					message.ack();
-					connection.unsubscribe(new String[]{sDestination});
-					System.out.println(receivedMesageTopic + ":" + messagePayLoad);
-					System.out.println(messagePayLoad);
-				}
-				public void onFailure(Throwable e) {
-					System.out.println("Exception receiving message: " + e);
-			
-				}
-			});
-			*/
-		//	connection.unsubscribe(new String[]{sDestination});
-//			connection.disconnect().then(new Callback<Void>(){
-//				public void onSuccess(Void value) {
-//					System.out.println("Disconnected");
-//				}
-//				public void onFailure(Throwable e) {
-//					System.out.println("Problem disconnecting");
-//				}
-//			});
-		
-//		else
-//		{
-//			System.out.println("No Connection is Established, trying again");
-//			connect();
-//		}
+    	Log.d(TAG, "push.sendmessage Completion time: "+end.getTime());
     }
     
     private void connect()
@@ -186,25 +110,8 @@ public class Push {
 			e2.printStackTrace();
 		}
 		
-		
-		/*try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}*/
-		
-/*		connection.connect().then(new Callback<Void>(){
-			public void onSuccess(Void value) {
-				
-				System.out.println("Boss Connected");
-			}
-			public void onFailure(Throwable e) {
-				
-				Log.e(TAG, "Exception connecting to " + sAddress + " - " + e);
-			}
-		});*/
-
+		subscribe(sDestination);
+		subscribe(sOutgoing);
 	}
     
     private void disconnect()
@@ -253,92 +160,36 @@ public class Push {
 				System.out.println("connection.isConnected="+connection.isConnected());
 				System.out.println("Calling connect() from send function");
 				System.out.println(connection.toString());
-/*				if(connection.isConnected())
-				{
-					System.out.println("kill : " + connection.toString());
-					connection.kill().then(new Callback<Void>(){
-						public void onSuccess(Void value) {
-							System.out.println("Disconnected");
-						}
-						public void onFailure(Throwable e) {
-							System.out.println("Problem disconnecting");
-							Log.e(TAG, "Exception disconnecting from " + sAddress + " - " + e);
-						}
-					});
-				}*/
-				
-/*				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}*/
 				connect();
 			}
 			
-			
-			Topic[] topics = {new Topic(sDestination, QoS.AT_LEAST_ONCE)};
-			try {
-				connection.subscribe(topics);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
+//			
+//			Topic[] topics = {new Topic(sDestination, QoS.AT_LEAST_ONCE)};
+//			try {
+//				connection.subscribe(topics);
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			
 			try {
 				connection.publish(sDestination, msg.getBytes(), QoS.AT_MOST_ONCE, false);
 				Date start = new Date();
 				System.out.println("Published Message : "+msg.toString());
 				Date end = new Date();
-				Log.d(TAG, "send : Connection time:("+start.getTime()+"-"+ end.getTime()+")");
+				Log.d(TAG, "send : Publish time:("+start.getTime()+"-"+ end.getTime()+")");
 				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			try {
-				connection.unsubscribe(new String[]{sDestination});
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			/*connection.subscribe(topics).then(new Callback<byte[]>() {
-				public void onSuccess(byte[] subscription) {
-					
-					Log.d(TAG, "Destination: " + sDestination);
-					Log.d(TAG, "Message: " + msg);
-					
-					// publish message
-					connection.publish(sDestination, msg.getBytes(), QoS.AT_MOST_ONCE, false);
-					//destinationET.setText("");
-					//messageET.setText("");
-					System.out.println("Message sent");
-					
-					 //receive message
-					
-//					 connection.receive().then(new Callback<Message>() {
-//						public void onSuccess(Message message) {
-//							String receivedMesageTopic = message.getTopic();
-//							byte[] payload = message.getPayload();
-//							String messagePayLoad = new String(payload);
-//							message.ack();
-//							connection.unsubscribe(new String[]{sDestination});
-//							//receiveET.setText(receivedMesageTopic + ":" + messagePayLoad);
-//							System.out.println(messagePayLoad);
-//						}
-//						public void onFailure(Throwable e) {
-//							Log.e(TAG, "Exception receiving message: " + e);
-//						}
-//					});
-					
-				}
-				
-				public void onFailure(Throwable e) {
-					Log.e(TAG, "Exception sending message: " + e);
-				}
-			});*/
+//			try {
+//				connection.unsubscribe(new String[]{sDestination});
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 		else
 		{
@@ -346,10 +197,33 @@ public class Push {
 		}
 	}  
 
+    private void subscribe(String topic)
+    {
+    	Topic[] topics = {new Topic(sOutgoing, QoS.AT_LEAST_ONCE)};
+		try {
+			connection.subscribe(topics);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    private void unSubscribe(String topic)
+    {
+    	try {
+			connection.unsubscribe(new String[]{sDestination});
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
     public void listenOutgoing(Context context)
     {
     	Message msg = null;
 	    
+    	while(true)
+		{
     	if(connection != null)
 			{
 				// automatically connect if no longer connected
@@ -368,45 +242,47 @@ public class Push {
 				}
 				System.out.println("In listenOutgoing connection.isConnected="+connection.isConnected());
 				
-				Topic[] topics = {new Topic(sOutgoing, QoS.AT_LEAST_ONCE)};
+//				Topic[] topics = {new Topic(sOutgoing, QoS.AT_LEAST_ONCE)};
+//				try {
+//					connection.subscribe(topics);
+//				} catch (Exception e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+					
+				
 				try {
-					connection.subscribe(topics);
+					Thread.sleep(500);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				System.out.println(" listenOutgoing, Inside while loop");
+				try {
+					Date start = new Date();
+					msg = connection.receive();
+					Date end = new Date();
+					Log.d(TAG, "listenOutgoing : Receive time:("+start.getTime()+"-"+ end.getTime()+")");
+					byte[] payload = msg.getPayload();
+					String messagePayLoad = new String(payload);
+					String receivedMessageTopic = msg.getTopic();
+					if(receivedMessageTopic.equals("outgoing_jugaado"))
+					{
+						String number = messagePayLoad.substring(messagePayLoad.indexOf("{") + 1, messagePayLoad.indexOf(":"));
+						String reply = messagePayLoad.substring(messagePayLoad.indexOf(":") + 1, messagePayLoad.indexOf("}"));
+						System.out.println("Inside thread, number = "+number);
+						Intent i = new Intent("SEND MESSAGE");
+						i.putExtra("number",number);
+						i.putExtra("reply",reply);
+						//Toast.makeText(context, "Sending Message", Toast.LENGTH_LONG).show();
+						context.sendBroadcast(i);
+					}
+					System.out.println("listenOutgoing ="+receivedMessageTopic+" : "+messagePayLoad);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				while(true)
-				{	
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					System.out.println(" listenOutgoing, Inside while loop");
-					try {
-						msg = connection.receive();
-						byte[] payload = msg.getPayload();
-						String messagePayLoad = new String(payload);
-						String receivedMessageTopic = msg.getTopic();
-						if(receivedMessageTopic.equals("outgoing_jugaado"))
-						{
-							String number = messagePayLoad.substring(messagePayLoad.indexOf("{") + 1, messagePayLoad.indexOf(":"));
-							String reply = messagePayLoad.substring(messagePayLoad.indexOf(":") + 1, messagePayLoad.indexOf("}"));
-							System.out.println("Inside thread, number = "+number);
-							Intent i = new Intent("SEND MESSAGE");
-							i.putExtra("number",number);
-							i.putExtra("reply",reply);
-							//Toast.makeText(context, "Sending Message", Toast.LENGTH_LONG).show();
-							context.sendBroadcast(i);
-						}
-						System.out.println("listenOutgoing ="+receivedMessageTopic+" : "+messagePayLoad);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
+			}
 		}
     }
 }

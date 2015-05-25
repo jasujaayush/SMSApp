@@ -1,8 +1,11 @@
 package com.test.smsmessaging;
 
+import java.util.Date;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 public class OutgoingQueueListener extends Service {
@@ -25,6 +28,8 @@ public class OutgoingQueueListener extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId){
 		Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
 		System.out.println("Service Started");
+		Date start = new Date();
+		Log.d("OutgoingQueueListener","Consumer thread starting time :"+start.getTime());
 		new Thread(new Runnable(){
 		    public void run() {
 		    	pull.listenOutgoing(getBaseContext());
