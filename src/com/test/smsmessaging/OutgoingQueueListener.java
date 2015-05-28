@@ -19,7 +19,6 @@ public class OutgoingQueueListener extends Service {
 	}
 
 	public void onCreate(){
-		Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
 		System.out.println("OutgoingQueueListener");
 		pull = Push.getInstance();
 	}

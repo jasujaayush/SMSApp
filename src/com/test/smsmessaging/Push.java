@@ -107,7 +107,7 @@ public class Push {
 		} catch (Exception e2) {
 			// TODO Auto-generated catch block
 			Log.d(TAG, "Blocking Connection not working");
-			e2.printStackTrace();
+			//e2.printStackTrace();
 		}
 		
 		subscribe(sDestination);
@@ -180,6 +180,7 @@ public class Push {
 				Log.d(TAG, "send : Publish time:("+start.getTime()+"-"+ end.getTime()+")");
 				
 			} catch (Exception e) {
+				System.out.println("Publishing to incoming queue failed");
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -193,13 +194,13 @@ public class Push {
 		}
 		else
 		{
-			System.out.println("No connection has been made, please create the connection");
+			System.out.println("No connection has been made, please create a connection");
 		}
 	}  
 
     private void subscribe(String topic)
     {
-    	Topic[] topics = {new Topic(sOutgoing, QoS.AT_LEAST_ONCE)};
+    	Topic[] topics = {new Topic(topic, QoS.AT_LEAST_ONCE)};
 		try {
 			connection.subscribe(topics);
 		} catch (Exception e) {
@@ -211,7 +212,7 @@ public class Push {
     private void unSubscribe(String topic)
     {
     	try {
-			connection.unsubscribe(new String[]{sDestination});
+			connection.unsubscribe(new String[]{topic});
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -221,6 +222,7 @@ public class Push {
     public void listenOutgoing(Context context)
     {
     	Message msg = null;
+    	String previousMessagePayLoad = null;
 	    
     	while(true)
 		{
@@ -266,7 +268,7 @@ public class Push {
 					byte[] payload = msg.getPayload();
 					String messagePayLoad = new String(payload);
 					String receivedMessageTopic = msg.getTopic();
-					if(receivedMessageTopic.equals("outgoing_jugaado"))
+					if(receivedMessageTopic.equals("outgoing_jugaado") && !messagePayLoad.equals(previousMessagePayLoad))
 					{
 						String number = messagePayLoad.substring(messagePayLoad.indexOf("{") + 1, messagePayLoad.indexOf(":"));
 						String reply = messagePayLoad.substring(messagePayLoad.indexOf(":") + 1, messagePayLoad.indexOf("}"));
@@ -276,6 +278,7 @@ public class Push {
 						i.putExtra("reply",reply);
 						//Toast.makeText(context, "Sending Message", Toast.LENGTH_LONG).show();
 						context.sendBroadcast(i);
+						previousMessagePayLoad = messagePayLoad;
 					}
 					System.out.println("listenOutgoing ="+receivedMessageTopic+" : "+messagePayLoad);
 				} catch (Exception e) {

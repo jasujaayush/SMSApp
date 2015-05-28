@@ -68,15 +68,19 @@ public class SMS extends Activity implements OnClickListener
 	    public void onReceive(Context context, Intent intent) {
 	    	String number = intent.getStringExtra("number");
 	    	String reply = intent.getStringExtra("reply");
+	    	String remainingReply = reply;
+	    	number = number.substring(0,number.indexOf("@"));
 	    	System.out.println("Number received : " + number);
 	    	System.out.println("Reply received : " + reply);
-	    	if(number.length() == 10 && number.matches("[0-9]+"))
+	    	while(remainingReply.length() > 160)
+    		{
+    			reply = remainingReply.substring(0,160);
+    			remainingReply = remainingReply.substring(160,remainingReply.length());
+	    		sendSMS(number,reply);
+    		}
+	    	if(remainingReply.length() > 0)
 	    	{
-	        	sendSMS(number,reply);
-	    	}
-	    	else
-	    	{
-	    		Toast.makeText(getBaseContext(), "Check the Number",Toast.LENGTH_SHORT).show();
+	    		sendSMS(number,remainingReply);
 	    	}
 	    }
 	};

@@ -35,12 +35,15 @@ public class SmsReceiver extends BroadcastReceiver
 	@Override
     public void onReceive(Context context, Intent intent) 
     {	
-    	Toast.makeText(context, "Message Received", Toast.LENGTH_LONG).show();
+    	Toast.makeText(context, "Message Received", Toast.LENGTH_SHORT).show();
 	        //---get the SMS message passed in---
 	        Bundle bundle = intent.getExtras();        
-	        SmsMessage[] msgs = null;
-	        String str = "";       
+	        SmsMessage[] msgs = null;       
 	        String jsonstr = "";
+	        String number = "";
+	        String lastTen = "";
+	        String message = "";
+	        
 	        if (bundle != null)
 	        {
 	            //---retrieve the SMS message received---
@@ -51,39 +54,37 @@ public class SmsReceiver extends BroadcastReceiver
 	            Log.d(TAG, "SMSRead time:("+endOnReceive.getTime()+"-"+ startOnReceive.getTime()+")");
 	            for (int i=0; i<msgs.length; i++){
 	                msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]); 
-	                jsonstr += "{";
-	                //str += "SMS from " + msgs[i].getOriginatingAddress(); 
-	                jsonstr += msgs[i].getOriginatingAddress();
-	                //str += " :";
-	                jsonstr += ":";
-	                //str += msgs[i].getMessageBody().toString();
-	                jsonstr += msgs[i].getMessageBody().toString();
-	                jsonstr += "}\n";
-	                //str += "\n"; 
-	                
-	              
+	                number = msgs[i].getOriginatingAddress();
+	                //lastTen = number.length() > 9 ? number.substring(number.length() - 10) : number;
+	                message = msgs[i].getMessageBody().toString();
+	                jsonstr = "{" + number + ":" + message + "}\n";
+	            	              
 	                try
 	                {
 	                	//tempURL = URL+URLEncoder.encode(jsonstr, "UTF-8");
 	                	//new GetXMLTask().execute(new String[] { tempURL });
-	                	System.out.println("Before calling Push.getInstance()");
 	                	
-	                	Push push = Push.getInstance();
-	                	//push.blockingsendmessage(context,jsonstr);
-	                	push.sendmessage(context,jsonstr);
-	                	//Toast.makeText(context, tempURL, Toast.LENGTH_LONG).show();
+	                	if(message.length() > 0 && number.matches("^(?:0091|\\+91|0)?[7-9][0-9]{9}$"))
+	                	{
+		                	System.out.println("Before calling Push.getInstance()");	                	
+		                	Push push = Push.getInstance();
+		                	push.sendmessage(context,jsonstr);
+	                	}
+	                	else
+	                	{
+	                		System.out.println("Number was improper");	
+	                	}
 	                }
 	                catch (Exception e) 
 	                {
 	                    // TODO Auto-generated catch block
 	                    e.printStackTrace();
 	                }
-	              
 	            }
+	            
 	            //---display the new SMS message---
 	            Log.d(TAG,"Inside OnReceive");
-	            
-	            Toast.makeText(context, jsonstr, Toast.LENGTH_LONG).show();
+	            Toast.makeText(context, jsonstr, Toast.LENGTH_SHORT).show();
 	        }
      }
     
