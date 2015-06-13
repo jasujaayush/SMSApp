@@ -8,5 +8,7 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="lib" path="/home/ayush/Downloads/javax.jms-3.1.1.jar"/>
 	<classpathentry kind="lib" path="/home/ayush/Downloads/apache-activemq-5.8.0/activemq-all-5.8.0.jar"/>
+	<classpathentry kind="lib" path="/home/ayush/paho/org.eclipse.paho.client.mqttv3-1.0.2.jar"/>
+	<classpathentry kind="lib" path="/home/ayush/paho/org.eclipse.paho.android.service-1.0.2.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

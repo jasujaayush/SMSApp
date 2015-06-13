@@ -33,7 +33,8 @@ public class SMS extends Activity implements OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         registerReceiver(MessageSender, new IntentFilter("SEND MESSAGE"));
-        startService();
+        startService(new Intent(this,InboxService.class));
+        startService(new Intent(this, OutgoingQueueListener.class));
         findViewsById();
         
         btnSendSMS.setOnClickListener(this); 

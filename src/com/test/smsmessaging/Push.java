@@ -2,10 +2,15 @@ package com.test.smsmessaging;
 
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import com.test.smsmessaging.MQTTImmutable;
 
 import org.fusesource.mqtt.client.BlockingConnection;
+import org.fusesource.mqtt.client.CallbackConnection;
+import org.fusesource.mqtt.client.Future;
+import org.fusesource.mqtt.client.FutureConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Message;
 import org.fusesource.mqtt.client.QoS;
@@ -14,22 +19,23 @@ import org.fusesource.mqtt.client.Topic;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
 public class Push {
 	
 	private final String TAG = "Push";
-	String sAddress = "tcp://54.149.71.100:1883";
-	String sUserName = "system";
-	String sPassword = "manager";
+	String sAddress = "tcp://52.26.15.67:1883";
+	String sUserName = "user";
+	String sPassword = "password";
 	String sDestination = "jugaado";
 	String sOutgoing = "outgoing_jugaado";
 	String sMessage = "test";
+	String clientID = "Jugaado-mqtt-client-" + UUID.randomUUID().toString();
 	static Date date = null;
 	
 	private static Push instance; 
 	
 	MQTT mqtt = null;
+	//CallbackConnection connection = null;
 	//FutureConnection connection = null;
 	BlockingConnection connection = null;
 	public Push()
@@ -69,10 +75,10 @@ public class Push {
     }
     
     private void connect()
-	{
-		//mqtt = new MQTT();
+	{	
 		mqtt = MQTTImmutable.getInstance();
-		mqtt.setClientId("android-mqtt-example");
+		System.out.println("Client ID : "+clientID);
+		mqtt.setClientId(clientID);
 
 		try
 		{
@@ -96,14 +102,29 @@ public class Push {
 			Log.d(TAG, "Password set: [" + sPassword + "]");
 		}
 		
-		//connection = mqtt.futureConnection();
-		connection = mqtt.blockingConnection();
+		try{
+			System.out.println("Trying to connect to server");
+			connection = mqtt.blockingConnection();
+			//connection = mqtt.callbackConnection();
+		}
+		catch(Exception e)
+		{
+			System.out.println("Could not connect to server");
+		}
+		
 		try {
-			Date time = new Date();
-			connection.connect();
-			Date time2 = new Date();
+			//Date time = new Date();
+			if(connection != null)
+			{
+				connection.connect();
+			}
+			else
+			{
+				System.out.println("Connection is null");
+			}
+			//Date time2 = new Date();
 			//System.out.println("Connection time:"+(time2.getTime()+"-"+ time.getTime()));
-			Log.d(TAG, "Connect : Connection time:("+time2.getTime()+"-"+ time.getTime()+")");
+			//Log.d(TAG, "Connect : Connection time:("+time2.getTime()+"-"+ time.getTime()+")");
 		} catch (Exception e2) {
 			// TODO Auto-generated catch block
 			Log.d(TAG, "Blocking Connection not working");
@@ -112,6 +133,7 @@ public class Push {
 		
 		subscribe(sDestination);
 		subscribe(sOutgoing);
+		subscribe("jugaadoWhatsapp");
 	}
     
     private void disconnect()
@@ -222,6 +244,7 @@ public class Push {
     public void listenOutgoing(Context context)
     {
     	Message msg = null;
+    	//Future<Message> msg = null;
     	String previousMessagePayLoad = null;
 	    
     	while(true)
@@ -265,9 +288,9 @@ public class Push {
 					msg = connection.receive();
 					Date end = new Date();
 					Log.d(TAG, "listenOutgoing : Receive time:("+start.getTime()+"-"+ end.getTime()+")");
-					byte[] payload = msg.getPayload();
+					byte[] payload = ((Message) msg).getPayload();
 					String messagePayLoad = new String(payload);
-					String receivedMessageTopic = msg.getTopic();
+					String receivedMessageTopic = ((Message) msg).getTopic();
 					if(receivedMessageTopic.equals("outgoing_jugaado") && !messagePayLoad.equals(previousMessagePayLoad))
 					{
 						String number = messagePayLoad.substring(messagePayLoad.indexOf("{") + 1, messagePayLoad.indexOf(":"));
