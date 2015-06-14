@@ -1,6 +1,7 @@
 package com.test.smsmessaging;
  
 import javax.jms.JMSException;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -26,15 +27,19 @@ public class SMS extends Activity implements OnClickListener
     EditText txtMessage;
     TextView outputText;
     
+    private SentReceiver sentReceiver = new SentReceiver();
+    
     /** Called when the activity is first created. */
 	@Override
     public void onCreate(Bundle savedInstanceState) 
     {	
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.activity_main);
         registerReceiver(MessageSender, new IntentFilter("SEND MESSAGE"));
         startService(new Intent(this,InboxService.class));
-        startService(new Intent(this, OutgoingQueueListener.class));
+        //startService(new Intent(this,MQTTService.class));
+        //startService(new Intent(this, OutgoingQueueListener.class));
         findViewsById();
         
         btnSendSMS.setOnClickListener(this); 
@@ -107,8 +112,6 @@ public class SMS extends Activity implements OnClickListener
         PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0,
             new Intent(DELIVERED), 0);
         
-        SentReceiver sentReceiver = new SentReceiver();
- 
         //---when the SMS has been sent---
         registerReceiver(sentReceiver, new IntentFilter(SENT));
  
